@@ -36,6 +36,11 @@ storm_data_relevant <- storm_data_relevant[,-which(names(storm_data_relevant) ==
 storm_data_relevant <- storm_data_relevant[,-which(names(storm_data_relevant) == "DEATHS_DIRECT")]
 storm_data_relevant <- storm_data_relevant[,-which(names(storm_data_relevant) == "DEATHS_INDIRECT")]
 
+# discretize injuries and deaths to true or false
+?ifelse
+storm_data_relevant$INJURIES <- ifelse(storm_data_relevant$INJURIES == 0, "No", "Yes")
+storm_data_relevant$DEATHS <- ifelse(storm_data_relevant$DEATHS == 0, "No", "Yes")
+
 # Process NA or missing data
 storm_data_relevant[is.na(storm_data_relevant$DAMAGE_PROPERTY), "DAMAGE_PROPERTY"] <- "0.00K"
 storm_data_relevant[is.na(storm_data_relevant$DAMAGE_CROPS), "DAMAGE_CROPS"] <- "0.00K"
