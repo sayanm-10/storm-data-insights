@@ -12,7 +12,7 @@ rm(list=ls())
 #################################################
 
 # Load 2017 Strom Details data
-storm_data_all <- read.csv("StormEvents_details_2017.csv", na.strings = "")
+storm_data_all <- read.csv("StormEvents_details_2017.csv", na.strings = "", stringsAsFactors = FALSE)
 
 # Select non-redundandant and relevant features for analysis
 #relevant_columns <- c("BEGIN_DAY", "BEGIN_TIME", "END_DAY", "END_TIME", "STATE", "MONTH_NAME", "EVENT_TYPE", "CZ_TIMEZONE", 
@@ -21,7 +21,7 @@ storm_data_all <- read.csv("StormEvents_details_2017.csv", na.strings = "")
 
 relevant_columns <- c("BEGIN_DAY", "END_DAY", "STATE", "MONTH_NAME", "EVENT_TYPE", 
                       "INJURIES_DIRECT", "INJURIES_INDIRECT",	"DEATHS_DIRECT",	"DEATHS_INDIRECT",	"DAMAGE_PROPERTY",
-                      "DAMAGE_CROPS",	"SOURCE", "MAGNITUDE",	"MAGNITUDE_TYPE")
+                      "DAMAGE_CROPS",	"SOURCE",	"MAGNITUDE_TYPE")
 
 storm_data_relevant <- storm_data_all[relevant_columns]
 
@@ -49,6 +49,25 @@ storm_data_relevant$DAMAGE_CROPS <- gsub(".*B.*", "High", storm_data_relevant$DA
 storm_data_relevant$DAMAGE_PROPERTY <- gsub(".*K.*", "Low", storm_data_relevant$DAMAGE_PROPERTY)
 storm_data_relevant$DAMAGE_PROPERTY <- gsub(".*M.*", "Medium", storm_data_relevant$DAMAGE_PROPERTY)
 storm_data_relevant$DAMAGE_PROPERTY <- gsub(".*B.*", "High", storm_data_relevant$DAMAGE_PROPERTY)
+
+# Categorize states and territories
+states <- c("ALABAMA","ALASKA","ARIZONA","ARKANSAS",
+            "CALIFORNIA","COLORADO",
+            "CONNECTICUT","DELAWARE","DISTRICT OF COLUMBIA",
+            "FLORIDA","GEORGIA",
+            "HAWAII","IDAHO","ILLINOIS",
+            "INDIANA","IOWA","KANSAS","KENTUCKY",
+            "LOUISIANA","MAINE","MARYLAND","MASSACHUSETTS","MICHIGAN","MINNESOTA",
+            "MISSISSIPPI","MISSOURI","MONTANA","NEBRASKA","NEVADA","NEW HAMPSHIRE",
+            "NEW JERSEY","NEW MEXICO","NEW YORK","NORTH CAROLINA","NORTH DAKOTA",
+            "OHIO","OKLAHOMA","OREGON","PENNSYLVANIA","RHODE ISLAND",
+            "SOUTH CAROLINA","SOUTH DAKOTA","TENNESSEE","TEXAS",
+            "UTAH","VERMONT","VIRGINIA","WASHINGTON","WEST VIRGINIA"
+            ,"WISCONSIN","WYOMING")
+
+isState <- storm_data_relevant$STATE %in% states
+
+storm_data_relevant$STATE[!isState] <- "TERRITORY"
 
 # If still empty records exist, remove them
 storm_data_relevant <- na.omit(storm_data_relevant)
