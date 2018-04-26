@@ -41,6 +41,7 @@ storm_data_relevant[is.na(storm_data_relevant$DAMAGE_PROPERTY), "DAMAGE_PROPERTY
 storm_data_relevant[is.na(storm_data_relevant$DAMAGE_CROPS), "DAMAGE_CROPS"] <- "0.00K"
 
 ?gsub
+# Categorize damage into 3 categories - low, medium, high
 storm_data_relevant$DAMAGE_CROPS <- gsub(".*K.*", "Low", storm_data_relevant$DAMAGE_CROPS)
 storm_data_relevant$DAMAGE_CROPS <- gsub(".*M.*", "Medium", storm_data_relevant$DAMAGE_CROPS)
 storm_data_relevant$DAMAGE_CROPS <- gsub(".*B.*", "High", storm_data_relevant$DAMAGE_CROPS)
