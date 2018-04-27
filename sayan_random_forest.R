@@ -1,7 +1,7 @@
 #################################################
 #  Company    : Stevens Tech 
 #  Project    : Group Project
-#  Purpose    : 
+#  Purpose    : Random Forest
 #  First Name : Sayan
 #  Last Name  : Mukherjee
 #  Id			    : 10430998
@@ -34,7 +34,8 @@ table(Prediction = prediction_injuries, Actual = test$INJURIES)
 
 wrong <- (test[,"INJURIES"] != prediction_injuries)
 error_rate <- sum(wrong)/length(wrong)
-error_rate * 100
+
+error_rate * 100 ### Error rate of 0.56%
 
 varImpPlot(rForest_Injuries)
 
@@ -46,7 +47,8 @@ table(Prediction = prediction_deaths, Actual = test$DEATHS)
 
 wrong <- (test[,"DEATHS"] != prediction_deaths)
 error_rate <- sum(wrong)/length(wrong)
-error_rate * 100
+
+error_rate * 100 ### Error rate of 0.27%
 
 varImpPlot(rForest_Deaths)
 
@@ -58,7 +60,8 @@ table(Prediction = prediction_property, Actual = test$DAMAGE_PROPERTY)
 
 wrong <- (test[,"DAMAGE_PROPERTY"] != prediction_property)
 error_rate <- sum(wrong)/length(wrong)
-error_rate * 100
+
+error_rate * 100 ### Error rate of 0.22%
 
 varImpPlot(rForest_Property)
 
@@ -70,6 +73,7 @@ table(Prediction = prediction_crops, Actual = test$DAMAGE_CROPS)
 
 wrong <- (test[,"DAMAGE_CROPS"] != prediction_crops)
 error_rate <- sum(wrong)/length(wrong)
-error_rate * 100
+
+error_rate * 100 ### Error rate of 0.028%
 
 varImpPlot(rForest_Crops)
