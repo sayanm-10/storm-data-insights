@@ -60,3 +60,4 @@ rapply(storm_data_relevant,function(x)length(unique(x)))
 curve(sapply(storm_data_relevant,function(x)length(unique(x))))
 ?unique
 unique(storm_data_relevant$DAMAGE_PROPERTY)
+
