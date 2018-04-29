@@ -1,8 +1,20 @@
+#################################################
+#  Company    : Stevens Tech 
+#  Project    : Group Project
+#  Purpose    : Data Preprocessing
+#  First Name : Siddhesh
+#  Last Name  : Prabhu
+#  Id			    : 10429120
+#  Date       : 04/20/2018
+#################################################
+
+
+#Clear the environment
 rm(list=ls())
 
 #Read file
 storm<-
-  read.csv("C://Users/hp/Desktop/513_Project/StormEvents_details-ftp_v1.0_d2017_c20180418.csv",na.strings = c("","NA"))
+  read.csv("C://Users/hp/Desktop/513_Project/Me/StormEvents_details-ftp_v1.0_d2017_c20180418.csv",na.strings = c("","NA"))
 
 #Remove unwanted columns
 storm<-storm[,-c(1,4,7,8,10,11,14, 15, 16, 17, 18, 20, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 45, 46, 47, 48, 49, 50, 51)]
@@ -30,24 +42,22 @@ storm$EVENT_TYPE<-factor(storm$EVENT_TYPE,levels=c("Astronomical Low Tide","Aval
                                                                                                                       40,41,42,43,44,45,
                                                                                                                       46,47,48,49))
 
+#Label STATE
 
-#storm$STATE<-factor(storm$STATE, levels=c("ALABAMA","ALASKA","AMERICAN SAMOA","ARIZONA","ARKANSAS",
-#                                          "ATLANTIC NORTH","ATLANTIC SOUTH","CALIFORNIA","COLORADO",
-#                                          "CONNECTICUT","DELAWARE","DISTRICT OF COLUMBIA",
-#                                          "E PACIFIC","FLORIDA","GEORGIA","GUAM",
-#                                          "GULF OF MEXICO","HAWAII","HAWAII WATERS","IDAHO","ILLINOIS",
-#                                          "INDIANA","IOWA","KANSAS","KENTUCKY","LAKE ERIE","LAKE HURON",
-#                                          "LAKE MICHIGAN","LAKE ONTARIO","LAKE ST CLAIR","LAKE SUPERIOR",
-#                                          "LOUISIANA","MAINE","MARYLAND","MASSACHUSETTS","MICHIGAN","MINNESOTA",
-#                                          "MISSISSIPPI","MISSOURI","MONTANA","NEBRASKA","NEVADA","NEW HAMPSHIRE",
-#                                          "NEW JERSEY","NEW MEXICO","NEW YORK","NORTH CAROLINA","NORTH DAKOTA",
-#                                         "OHIO","OKLAHOMA","OREGON","PENNSYLVANIA","PUERTO RICO","RHODE ISLAND",                                          "SOUTH CAROLINA","SOUTH DAKOTA","ST LAWRENCE R","TENNESSEE","TEXAS",
-#                                          "UTAH","VERMONT","VIRGIN ISLANDS","VIRGINIA","WASHINGTON","WEST VIRGINIA"
-#                                          ,"WISCONSIN","WYOMING"), labels=c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,
-#                                                                            17,18,19,20,21,22,23,24,25,26,27,28,29,
-#                                                                            30,31,32,33,34,35,36,37,38,39,40,41,42,
-#                                                                            43,44,45,46,47,48,49,50,51,52,53,54,55,
-#                                                                            56,57,58,59,60,61,62,63,64,65,66,67))
+storm$STATE<-(factor(storm$STATE))
+levels(storm$STATE)<-list("1"=c("ALABAMA"),"2"=c("ALASKA"),"3"=c("ARIZONA"),"4"=c("ARKANSAS"),"5"=c("CALIFORNIA"),
+                          "6"=c("COLORADO"),"7"=c("CONNECTICUT"),"8"=c("DELAWARE"),"9"=c("FLORIDA"),"10"=c("GEORGIA"),
+                          "11"=c("HAWAII"),"12"=c("IDAHO"),"13"=c("ILLINOIS"),"14"=c("INDIANA"),
+                          "15"=c("IOWA"),"16"=c("KANSAS"),"17"=c("KENTUCKY"),"18"=c("LOUISIANA"),
+                          "19"=c("MAINE"),"20"=c("MARYLAND"),"21"=c("MASSACHUSETTS"),"22"=c("MICHIGAN"),
+                          "23"=c("MINNESOTA"),"24"=c("MISSISSIPPI"),"25"=c("MISSOURI"),"26"=c("MONTANA"),
+                          "27"=c("NEBRASKA"),"28"=c("NEVADA"),"29"=c("NEW HAMPSHIRE"),"30"=c("NEW JERSEY"),
+                          "31"=c("NEW MEXICO"),"32"=c("NEW YORK"),"33"=c("NORTH CAROLINA"),"34"=c("NORTH DAKOTA"),
+                          "35"=c("OHIO"),"36"=c("OKLAHOMA"),"37"=c("OREGON"),"38"=c("PENNSYLVANIA"),
+                          "39"=c("RHODE ISLAND"),"40"=c("SOUTH CAROLINA"),"41"=c("SOUTH DAKOTA"),
+                          "42"=c("TENNESSEE"),"43"=c("TEXAS"),"44"=c("UTAH"),"45"=c("VERMONT"),"46"=c("VIRGINIA"),
+                          "47"=c("WASHINGTON"),"48"=c("WEST VIRGINIA"),"49"=c("WISCONSIN"),"50"=c("WYOMING"),
+                          "51"=c("AMERICAN SAMOA","ATLANTIC NORTH","ATLANTIC SOUTH","DISTRICT OF COLUMBIA","E PACIFIC","GUAM","GULF OF MEXICO","HAWAII WATERS","LAKE ERIE","LAKE HURON","LAKE MICHIGAN","LAKE ONTARIO","LAKE ST CLAIR","LAKE SUPERIOR","PUERTO RICO","ST LAWRENCE R","VIRGIN ISLANDS"))
 
 #Label MAGNITUDE_TYPE
 storm$MAGNITUDE_TYPE<-factor(storm$MAGNITUDE_TYPE, levels=c("EG","ES","MG","MS"),labels=c(1,2,3,4))
@@ -73,24 +83,6 @@ storm$DAMAGE_PROPERTY <- gsub(".*K.*", "Low", storm$DAMAGE_PROPERTY)
 storm$DAMAGE_PROPERTY <- gsub(".*M.*", "Medium", storm$DAMAGE_PROPERTY)
 storm$DAMAGE_PROPERTY <- gsub(".*B.*", "High", storm$DAMAGE_PROPERTY)
 
-#Label STATE
-
-storm$STATE<-as.numeric(factor(storm$STATE))
-levels(storm$STATE)<-list(1=c("ALABAMA"),2=c("ALASKA"),3=c("ARIZONA"),4=c("ARKANSAS"),5=c("CALIFORNIA"),
-                          6=c("COLORADO"),7=c("CONNECTICUT"),8=c("DELAWARE"),9=c("FLORIDA"),10=c("GEORGIA"),
-                          11=c("HAWAII"),12=c("IDAHO"),13=c("ILLINOIS"),14=c("INDIANA"),15=c("IOWA"),
-                          16=c("KANSAS"),17=c("KENTUCKY"),18=c("LOUISIANA"),19=c("MAINE"),20=c("MARYLAND"),
-                          21=c("MASSACHUSETTS"),22=c("MICHIGAN"),23=c("MINNESOTA"),24=c("MISSISSIPPI"),25=c("MISSOURI"),
-                          26=c("MONTANA"),27=c("NEBRASKA"),28=c("NEVADA"),29=c("NEW HAMPSHIRE"),30=c("NEW JERSEY"),
-                          31=c("NEW MEXICO"),32=c("NEW YORK"),33=c("NORTH CAROLINA"),34=c("NORTH DAKOTA"),35=c("OHIO"),
-                          36=c("OKLAHOMA"),37=c("OREGON"),38=c("PENNSYLVANIA"),39=c("RHODE ISLAND"),40=c("UTAH"),
-                          41=c("VERMONT"),42=c("VIRGINIA"),43=c("WASHINGTON"),44=c("WEST VIRGINIA"),45=c("WISCONSIN"),
-                          46=c("WYOMING"),47=c("AMERICAN SAMOA","ATLANTIC NORTH","ATLANTIC SOUTH","DISTRICT OF COLUMBIA",
-                                               "E PACIFIC","GUAM","GULF OF MEXICO","HAWAII WATERS","LAKE ERIE",
-                                               "LAKE HURON","LAKE MICHIGAN","LAKE ONTARIO","LAKE ST CLAIR",
-                                               "LAKE SUPERIOR","PUERTO RICO","VIRGIN ISLANDS"))
-
-
 #Injuries Yes,No
 storm$INJURIES<-factor(storm$INJURIES)
 levels(storm$INJURIES)<-list(No=c("0"), Yes=c("1","2","3","4","5","6","7","8","10","11","12","14","15","20","24","25","29","30","31","32","33","45","51","56","64","500"))
@@ -107,9 +99,8 @@ storm$MAGNITUDE[is.na(storm$MAGNITUDE)]<-0
 storm<-storm[,-c(8,9,12,15,17,18,19)]
 
 #To check na values are present or not
-#View(unique(is.na(storm$MAGNITUDE)))
+#View(unique(is.na(storm)))
 
-View(storm)
-
+#View(storm)
 #To write storm dataset to csv file
-#write.csv(storm, file = "C://Users/hp/Desktop/513_Project/storm.csv")
+#write.csv(storm, file = "C://Users/hp/Desktop/513_Project/Me/storm.csv")
