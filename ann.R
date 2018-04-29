@@ -27,7 +27,7 @@ coefficient <- function(a) {
   else { 0 }
 }
 
-standardScale <- function () { (x - mean(x)) / sd(x) }
+standardScale <- function (x) { (x - mean(x)) / sd(x) }
 normalize <- function (x) { (x - min(x)) / (max(x) - min(x)) }
 special_chars <- "[^[:alnum:]]"
 
@@ -250,14 +250,14 @@ dmg_crop_eq <- DAMAGE_CROPS_LOW + DAMAGE_CROPS_MED + DAMAGE_CROPS_HIGH ~
   STATE_OHIO +
   STATE_GEORGIA +
   STATE_VIRGINIA +
-  STATE_GULF_OF_MEXICO +
+  # STATE_GULF_OF_MEXICO +
   STATE_NEBRASKA +
-  STATE_ATLANTIC_NORTH +
+  # STATE_ATLANTIC_NORTH +
   STATE_FLORIDA +
   STATE_MONTANA +
   STATE_MISSOURI +
   STATE_KANSAS +
-  STATE_ATLANTIC_SOUTH +
+  # STATE_ATLANTIC_SOUTH +
   STATE_ALABAMA +
   STATE_ARIZONA +
   STATE_MASSACHUSETTS +
@@ -269,7 +269,7 @@ dmg_crop_eq <- DAMAGE_CROPS_LOW + DAMAGE_CROPS_MED + DAMAGE_CROPS_HIGH ~
   # STATE_LAKE_SUPERIOR +
   STATE_LOUISIANA +
   STATE_WISCONSIN +
-  STATE_DISTRICT_OF_COLUMBIA +
+  # STATE_DISTRICT_OF_COLUMBIA +
   STATE_NORTH_CAROLINA +
   STATE_DELAWARE +
   STATE_WYOMING +
