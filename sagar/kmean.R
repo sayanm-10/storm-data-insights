@@ -12,7 +12,7 @@
 rm(list=ls())
 
 #Loading the data
-storm <- read.csv("/Users/sagarjain/Desktop/kddm/project/final/storm.csv")
+storm <- read.csv("/Users/sagarjain/Desktop/kddm/project/sagar/storm.csv")
 
 #Remove unwanted columns
 storm<-storm[,-c(1,13)]
@@ -22,28 +22,25 @@ storm$INJURIES<-factor(storm$INJURIES,levels = c("No","Yes"),labels = c(0,1))
 storm$DEATHS<-factor(storm$DEATHS,levels = c("No","Yes"),labels = c(0,1))
 storm$DAMAGE_PROPERTY<-factor(storm$DAMAGE_PROPERTY,levels = c("Low","Medium","High"),labels = c(0,1,2))
 storm$DAMAGE_CROPS<-factor(storm$DAMAGE_CROPS,levels = c("Low","Medium","High"),labels = c(0,1,2));
-
-storm<- storm[sample(1:nrow(storm),nrow(storm)/2),]
-#hclust for injuries
-storm_dist<-dist( storm[,-c(8)])
-hclust_results<-hclust(storm_dist,method="complete")
-hclust_2<-cutree(hclust_results,2)
-table(hclust_2,storm[,8])
-
-kmeans_2<- kmeans(storm[,-c(8)],2,nstart = 10)
-kmeans_2$cluster
-table(kmeans_2$cluster,storm[,8])
 ?kmeans
+#calculating Kmeans for Injurues
+kmeans_injuries<- kmeans(storm[,-c(8)],2,nstart = 10)
+kmeans_injuries
+kmeans_injuries$cluster
+table(kmeans_injuries$cluster,storm[,8])
 
-kmeans_2<- kmeans(storm[,-c(9)],2,nstart = 10)
-kmeans_2$cluster
-table
+#calculating kmeans for Death
+kmeans_death<- kmeans(storm[,-c(9)],2,nstart = 10)
+kmeans_death$cluster
+table(kmeans_death$cluster,storm[,8])
 
-kmeans_2<- kmeans(storm[,-c(10)],2,nstart = 10)
-kmeans_2$cluster
-table(kmeans_2$cluster,storm[,10])
+#calculating Kmeans for Damage property
+kmeans_property<- kmeans(storm[,-c(10)],2,nstart = 10)
+kmeans_property$cluster
+table(kmeans_property$cluster,storm[,10])
 
-kmeans_2<- kmeans(storm[,-c(11)],2,nstart = 10)
-kmeans_2$cluster
-table(kmeans_2$cluster,storm[,11])
+#calculating Kmeans for damage crops
+kmeans_crops<- kmeans(storm[,-c(11)],2,nstart = 10)
+kmeans_crops$cluster
+table(kmeans_crops$cluster,storm[,11])
 ?kmeans
