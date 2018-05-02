@@ -7,13 +7,15 @@
 #  Id			    : 10429097
 #  Date       : 04/20/2018
 #################################################
-
+#cleaning data
 rm(list = ls())
 
+#read data
 storm <- read.csv("/Users/sagarjain/Desktop/kddm/project/sagar/storm.csv")
 storm <- storm[,-c(1)]
 View(storm)
 
+#diving data into test and training data set
 index<-sort(sample(nrow(storm),round(.25*nrow(storm))))
 training<-storm[-index,]
 test<-storm[index,]
@@ -24,8 +26,8 @@ library('C50')
 library(rpart)
 library('rpart.plot')
 
-#C50_class <- C5.0(bc[,-c(1,11)], y=training$Class)
-#set.seed(123)
+
+set.seed(123)
 
 #C5.0 methodology to develop a classification model for the INJURIES
 C50_INJURIES<-C5.0(INJURIES~.,data=training)
@@ -53,7 +55,7 @@ wrong_DEATHS
 c50_rate_DEATHS<-sum(wrong_DEATHS)/length(test[,9])
 c50_rate_DEATHS
 
-#C5.0 methodology to develop a classification model for the DEATHS
+#C5.0 methodology to develop a classification model for the property damage
 C50_DAMAGES_p<-C5.0(DAMAGE_PROPERTY~.,data=training)
 C50_DAMAGES_p
 summary(C50_DAMAGES_p )
@@ -65,7 +67,7 @@ wrong_p_DAMAGES
 c50_rate_DAMAGES_p<-sum(wrong_p_DAMAGES)/length(test[,10])
 c50_rate_DAMAGES_p
 
-
+#C5.0 methodology to develop a classification model for the crops damage
 C50_DAMAGES_c<-C5.0(DAMAGE_CROPS~.,data=training)
 C50_DAMAGES_c
 summary(C50_DAMAGES_c )
