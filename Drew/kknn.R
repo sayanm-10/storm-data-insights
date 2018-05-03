@@ -1,97 +1,104 @@
+# detach("package:caret", unload=TRUE)
+# vars <- ls()
+# namespace <- grep("kknn.", ls())
+# rm(list=vars[namespace])
+
 library(kknn)
 
-index <- seq(1, nrow(storm_data), by=5)
-test <- storm_data[index, ]
-training <- storm_data[-index, ]
-training <- training[1:(nrow(training) / 2), ]
+# Copy over storm data so we don't mess with anyone else's code
+# If you get errors at this part, run, Project_Data_Preprocess.R first!
+kknn.sdr <- storm_data_relevant
+kknn.sda <- storm_data_all
 
-training <- as.data.frame(training)
-test <- as.data.frame(test)
+## Helper functions
+standardScale <- function (x) { (x - mean(x)) / sd(x) }
+normalize <- function (x) { (x - min(x)) / (max(x) - min(x)) }
+special_chars <- "[^[:alnum:]]"
 
-eq <- EVENT_TYPE ~
-  MONTH_NAME +
-  DAMAGE_PROPERTY +
-  DAMAGE_CROPS + 
-  DEATHS_INDIRECT + 
-  DEATHS_DIRECT +
-  STATE_NEW_JERSEY +
-  STATE_FLORIDA +
-  STATE_OHIO +
-  STATE_NEBRASKA +
-  STATE_GEORGIA +
-  STATE_INDIANA +
-  STATE_VIRGINIA +
-  STATE_GULF_OF_MEXICO +
-  STATE_ARKANSAS +
-  STATE_OKLAHOMA +
-  STATE_ATLANTIC_NORTH +
-  STATE_PENNSYLVANIA +
-  STATE_WISCONSIN +
-  STATE_MONTANA +
-  STATE_MISSOURI +
-  STATE_KANSAS +
-  STATE_ATLANTIC_SOUTH +
-  STATE_ALABAMA +
-  STATE_NEVADA +
-  STATE_NEW_MEXICO +
-  STATE_ILLINOIS +
-  STATE_TEXAS +
-  STATE_WYOMING +
-  STATE_IOWA +
-  STATE_ARIZONA +
-  STATE_MASSACHUSETTS +
-  STATE_SOUTH_CAROLINA +
-  STATE_MINNESOTA +
-  STATE_NORTH_CAROLINA +
-  STATE_WASHINGTON +
-  STATE_KENTUCKY +
-  STATE_MARYLAND +
-  STATE_LAKE_SUPERIOR +
-  STATE_LOUISIANA +
-  STATE_CALIFORNIA +
-  STATE_DISTRICT_OF_COLUMBIA +
-  STATE_DELAWARE +
-  STATE_WEST_VIRGINIA +
-  STATE_MISSISSIPPI +
-  STATE_TENNESSEE +
-  STATE_COLORADO +
-  STATE_RHODE_ISLAND +
-  STATE_CONNECTICUT +
-  STATE_ALASKA +
-  STATE_OREGON +
-  STATE_NEW_YORK +
-  STATE_VERMONT +
-  STATE_IDAHO +
-  STATE_SOUTH_DAKOTA +
-  STATE_NORTH_DAKOTA +
-  STATE_LAKE_MICHIGAN +
-  STATE_MICHIGAN +
-  STATE_UTAH +
-  STATE_LAKE_ERIE +
-  STATE_MAINE +
-  STATE_PUERTO_RICO +
-  STATE_HAWAII +
-  STATE_E_PACIFIC +
-  STATE_NEW_HAMPSHIRE +
-  STATE_VIRGIN_ISLANDS +
-  STATE_LAKE_ST_CLAIR +
-  STATE_GUAM +
-  STATE_LAKE_HURON +
-  STATE_AMERICAN_SAMOA +
-  STATE_HAWAII_WATERS +
-  STATE_LAKE_ONTARIO +
-  STATE_ST_LAWRENCE_R
+## Clean Data
 
-model <- train.kknn(
-  eq,
-  data = training,
-  kmax = 9
+# Replace some special chars
+kknn.sdr$SOURCE <- gsub(special_chars, "_", kknn.sdr$SOURCE)
+kknn.sdr$EVENT_TYPE <- gsub(special_chars, "_", kknn.sdr$EVENT_TYPE)
+
+# Factorize
+kknn.sdr$DAMAGE_CROPS <- factor(kknn.sdr$DAMAGE_CROPS, c("Low", "Medium", "High"))
+kknn.sdr$DAMAGE_PROPERTY <- factor(kknn.sdr$DAMAGE_PROPERTY, c("Low", "Medium", "High"))
+kknn.sdr$SOURCE <- factor(kknn.sdr$SOURCE)
+kknn.sdr$INJURIES <- factor(kknn.sdr$INJURIES, c("Yes", "No"))
+kknn.sdr$DEATHS <- factor(kknn.sdr$DEATHS, c("Yes", "No"))
+
+# Remove old columns
+kknn.sdr$MAGNITUDE <- NULL
+kknn.sdr$MAGNITUDE_TYPE <- NULL
+
+# Normalize
+kknn.sdr$BEGIN_DAY <- normalize(kknn.sdr$BEGIN_DAY)
+kknn.sdr$END_DAY <- normalize(kknn.sdr$END_DAY)
+
+## Sample Data
+
+index <- seq(1, nrow(kknn.sdr), by=5)
+kknn.test <- kknn.sdr[index, ]
+kknn.training <- kknn.sdr[-index, ]
+# kknn.training <- kknn.training[sample(nrow(kknn.training), 10000), ]
+
+# kknn.training <- data.frame(kknn.training)
+# kknn.test <- data.frame(kknn.test)
+
+## TRAIN MODELS
+
+kknn.model0 <<- kknn(
+  DAMAGE_PROPERTY ~ BEGIN_DAY + END_DAY + STATE + MONTH_NAME + EVENT_TYPE + DAMAGE_CROPS + SOURCE + INJURIES + DEATHS,
+  kknn.training,
+  kknn.test,
+  distance = 1,
+  kernel = "rectangular"
 )
 
-prediction <- predict(
-  model, 
-  test[, - grep("EVENT_TYPE", colnames(test))])
-CM <- table(test[, - grep("EVENT_TYPE", colnames(test))], prediction)
+CM <- table(kknn.test[, "DAMAGE_PROPERTY"], kknn.model0$fitted.values)
+CM
 
-accuracy <- sum(diag(CM)) / sum(CM)
-accuracy
+mse <- mean((kknn.model0$fitted.values != kknn.test[, "DAMAGE_PROPERTY"]) ^ 2)
+mse
+CM <- table(kknn.test[, "DAMAGE_PROPERTY"], kknn.model0$fitted.values)
+CM
+
+kknn.model1 <<- kknn(
+  formula = DAMAGE_CROPS ~ BEGIN_DAY + END_DAY + STATE + MONTH_NAME + EVENT_TYPE + DAMAGE_PROPERTY + SOURCE + INJURIES + DEATHS,
+  kknn.training,
+  kknn.test,
+  distance = 1,
+  kernel = "rectangular"
+)
+
+mse <- mean((kknn.model1$fitted.values != kknn.test[, "DAMAGE_CROPS"]) ^ 2)
+mse
+CM <- table(kknn.test[, "DAMAGE_CROPS"], kknn.model1$fitted.values)
+CM
+
+kknn.model2 <<- kknn(
+  INJURIES ~ BEGIN_DAY + END_DAY + STATE + MONTH_NAME + EVENT_TYPE + DAMAGE_PROPERTY + DAMAGE_CROPS  + SOURCE + DEATHS,
+  kknn.training,
+  kknn.test,
+  distance = 1,
+  kernel = "rectangular"
+)
+
+mse <- mean((kknn.model2$fitted.values != kknn.test[, "INJURIES"]) ^ 2)
+mse
+CM <- table(kknn.test[, "INJURIES"], kknn.model2$fitted.values)
+CM
+
+kknn.model3 <<- kknn(
+  DEATHS ~ BEGIN_DAY + END_DAY + STATE + MONTH_NAME + EVENT_TYPE + DAMAGE_PROPERTY + DAMAGE_CROPS  + SOURCE + INJURIES,
+  kknn.training,
+  kknn.test,
+  distance = 1,
+  kernel = "rectangular"
+)
+
+mse <- mean((kknn.model3$fitted.values != kknn.test[, "DEATHS"]) ^ 2)
+mse
+CM <- table(kknn.test[, "DEATHS"], kknn.model3$fitted.values)
+CM

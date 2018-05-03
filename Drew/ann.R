@@ -6,9 +6,15 @@ library("pROC")
 ## Global variables and flags
 
 ann.DEBUG <- TRUE
-ann.SAMPLE_SIZE <- 1000
+
+# Run with actual parameters
+ann.BEEFY <- TRUE
 
 ## SETUP
+# vars <- ls()
+# namespace <- grep("kknn.", ls())
+# rm(list=vars[namespace])
+
 # Copy over storm data so we don't mess with anyone else's code
 # If you get errors at this part, run, Project_Data_Preprocess.R first!
 ann.sda <- storm_data_all
@@ -16,6 +22,16 @@ ann.sdr <- storm_data_relevant
 
 if (ann.DEBUG) {
   set.seed(1337)
+}
+
+if (ann.BEEFY) {
+  ann.THRESHOLD <- 0.01
+  ann.REPEATS <- 5
+  ann.STEPMAX <- 1e+07
+} else {
+  ann.THRESHOLD <- 0.01
+  ann.REPEATS <- 1
+  ann.STEPMAX <- 1e+05
 }
 
 ## Helper functions
@@ -99,12 +115,20 @@ ann.sdr$MAGNITUDE_TYPE <- NULL
 ann.sdr$BEGIN_DAY <- normalize(ann.sdr$BEGIN_DAY)
 ann.sdr$END_DAY <- normalize(ann.sdr$END_DAY)
 
-## Sample Data``
-
+## Sample Data
+ann.sdr <- sample(ann.sdr) # Shuffle order
 index <- seq(1, nrow(ann.sdr), by=5)
 ann.test <- ann.sdr[index, ]
 ann.training <- ann.sdr[-index, ]
-ann.training <- ann.training[sample(nrow(ann.training), 10000), ]
+
+if (ann.BEEFY) {
+  ann.SAMPLE_SIZE <- nrow(ann.training) / 2
+} else {
+  ann.SAMPLE_SIZE <- nrow(ann.training) / 5
+  ann.SAMPLE_SIZE
+}
+
+ann.training <- ann.training[sample(nrow(ann.training), ann.SAMPLE_SIZE), ]
 
 # ann.training <- as.data.frame(ann.training)
 # ann.test <- as.data.frame(ann.test)
@@ -591,61 +615,86 @@ death_eq <- DEATHS ~
   EVENT_TYPE_MARINE_HIGH_WIND
 
 ## METHOD 0: Classifier on DAMAGE_PROPERTY
-m0.fit <- neuralnet(
-  dmg_prop_eq,
-  data = ann.training
-  )
+damage_cols = c("DAMAGE_PROPERTY_LOW", "DAMAGE_PROPERTY_MED", "DAMAGE_PROPERTY_HIGH")
+damage_classes = c("Low", "Medium", "High")
 
-m0.fit.comp <- compute(m0.fit, ann.test[, m0.fit$model.list$variables])
-m0.pred <- round(m0.fit.comp$net.result)
-f <- function (row) { c("Low", "Medium", "High")[which.max(row)] }
-g <- function (row) { c(0, 1, 2)[which.max(row)] }
-orig <- apply(ann.test[, c("DAMAGE_CROPS_LOW", "DAMAGE_CROPS_MED", "DAMAGE_CROPS_HIGH")], MARGIN=1, FUN=f)
-orig_g <- apply(ann.test[, c("DAMAGE_CROPS_LOW", "DAMAGE_CROPS_MED", "DAMAGE_CROPS_HIGH")], MARGIN=1, FUN=g)
-pred <- apply(m0.pred, MARGIN=1, FUN=f)
-pred_g <- apply(m0.pred, MARGIN=1, FUN=g)
-m0.mse <- mean((orig != pred) ^ 2)
-m0.mse
-plot(roc(orig_g, pred_g), main=paste("DAMAGE_PROPERTY ROC ", ann.SAMPLE_SIZE))
+ann.method0 <- function () {
+  m0.fit <<- neuralnet(
+    dmg_prop_eq,
+    data = ann.training,
+    threshold = ann.THRESHOLD,
+    rep = ann.REPEATS,
+    stepmax = ann.STEPMAX,
+    hidden = 5
+  )
+  
+  m0.fit.comp <- compute(m0.fit, ann.test[, m0.fit$model.list$variables])
+  m0.pred <<- apply(m0.fit.comp$net.result, which.max, MARGIN=1)
+  m0.orig <<- apply(ann.test[, damage_cols], which.max, MARGIN=1)
+  
+  m0.mse <<- mean((m0.pred != m0.orig) ^ 2)
+  m0.mse
+  
+  plot(roc(m0.orig, m0.pred), main=paste("DAMAGE_PROPERTY ROC ", ann.SAMPLE_SIZE))
+  plot(m0.fit)
+}
 
 ## METHOD 1: Classifier on DAMAGE_CROPS
-m1.fit <- neuralnet(
-  dmg_crop_eq,
-  data = ann.training
-  )
+ann.method1 <- function () {
+  m1.fit <<- neuralnet(
+    dmg_crop_eq,
+    data = ann.training,
+    threshold = ann.THRESHOLD
+    )
 
-m1.fit.comp <- compute(m1.fit, ann.test[, m1.fit$model.list$variables])
-m1.pred <- round(m1.fit.comp$net.result)
-f <- function (row) { c("Low", "Medium", "High")[which.max(row)] }
-g <- function (row) { c(0, 1, 2)[which.max(row)] }
-orig <- apply(ann.test[, c("DAMAGE_CROPS_LOW", "DAMAGE_CROPS_MED", "DAMAGE_CROPS_HIGH")], MARGIN=1, FUN=f)
-orig_g <- apply(ann.test[, c("DAMAGE_CROPS_LOW", "DAMAGE_CROPS_MED", "DAMAGE_CROPS_HIGH")], MARGIN=1, FUN=g)
-pred <- apply(m1.pred, MARGIN=1, FUN=f)
-pred_g <- apply(m1.pred, MARGIN=1, FUN=g)
-m1.mse <- mean((orig != pred) ^ 2)
-m1.mse
-plot(roc(orig_g, pred_g), main=paste("DAMAGE_CROPS ", ann.SAMPLE_SIZE))
+  m1.fit.comp <- compute(m1.fit, ann.test[, m1.fit$model.list$variables])
+  m1.pred <<- apply(m1.fit.comp$net.result, which.max, MARGIN=1)
+  m1.orig <<- apply(ann.test[, damage_cols], which.max, MARGIN=1)
+  
+  m1.mse <<- mean((m1.pred != m1.orig) ^ 2)
+  m1.mse
+  
+  plot(roc(m1.pred, m1.orig), main=paste("DAMAGE_CROPS ", ann.SAMPLE_SIZE))
+  # plot(m1.fit)
+}
 
 ## METHOD 2: Classification on INJURIES
-m2.fit <- neuralnet(
-  inj_eq,
-  data = ann.training
+ann.method2 <- function () {
+  m2.fit <<- neuralnet(
+    inj_eq,
+    data = ann.training,
+    threshold = ann.THRESHOLD,
+    rep = ann.REPEATS
   )
-
-m2.fit.comp <- compute(m2.fit, ann.test[, m2.fit$model.list$variables])
-m2.pred <- as.numeric(m2.fit.comp$net.result)
-m2.mse <- mean((m2.pred == ann.test$INJURIES) ^ 2)
-m2.mse
-plot(roc(ann.test$INJURIES, m2.pred), main=paste("INJURIES ROC ", ann.SAMPLE_SIZE))
+  
+  m2.fit.comp <- compute(m2.fit, ann.test[, m2.fit$model.list$variables])
+  m2.pred <<- as.numeric(m2.fit.comp$net.result)
+  m2.mse <<- mean((m2.pred == ann.test$INJURIES) ^ 2)
+  m2.mse
+  
+  plot(roc(ann.test$INJURIES, m2.pred), main=paste("INJURIES ROC ", ann.SAMPLE_SIZE))
+  # plot(m2.fit)
+}
 
 ## METHOD 3: Classification on DEATHS
-m3.fit <- neuralnet(
-  death_eq,
-  data = ann.training
+ann.method3 <- function () {
+  m3.fit <<- neuralnet(
+    death_eq,
+    data = ann.training,
+    threshold = ann.THRESHOLD,
+    rep = ann.REPEATS
   )
+  
+  m3.fit.comp <- compute(m3.fit, ann.test[, m3.fit$model.list$variables])
+  m3.pred <<- as.numeric(m3.fit.comp$net.result)
+  m3.mse <<- mean((m3.pred == ann.test$INJURIES) ^ 2)
+  m3.mse
+  
+  plot(roc(ann.test$DEATHS, m3.pred), main=paste("DEATH ROC ", ann.SAMPLE_SIZE))
+  # plot(m3.fit)
+}
 
-m3.fit.comp <- compute(m3.fit, ann.test[, m3.fit$model.list$variables])
-m3.pred <- as.numeric(m3.fit.comp$net.result)
-m3.mse <- mean((m3.pred == ann.test$INJURIES) ^ 2)
-m3.mse
-plot(roc(death_eq, m3.pred), main=paste("DEATH ROC ", ann.SAMPLE_SIZE))
+ann.method0()
+# ann.method1()
+ann.method2()
+ann.method3()
