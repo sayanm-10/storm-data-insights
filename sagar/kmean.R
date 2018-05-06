@@ -18,10 +18,10 @@ storm <- read.csv("/Users/sagarjain/Desktop/kddm/project/sagar/storm.csv")
 storm<-storm[,-c(1,13)]
 
 #To assign integer values to factors
-storm$INJURIES<-factor(storm$INJURIES,levels = c("No","Yes"),labels = c(0,1))
-storm$DEATHS<-factor(storm$DEATHS,levels = c("No","Yes"),labels = c(0,1))
-storm$DAMAGE_PROPERTY<-factor(storm$DAMAGE_PROPERTY,levels = c("Low","Medium","High"),labels = c(0,1,2))
-storm$DAMAGE_CROPS<-factor(storm$DAMAGE_CROPS,levels = c("Low","Medium","High"),labels = c(0,1,2));
+storm$INJURIES<-factor(storm$INJURIES,levels = c("No","Yes"),labels = c(1,2))
+storm$DEATHS<-factor(storm$DEATHS,levels = c("No","Yes"),labels = c(1,2))
+storm$DAMAGE_PROPERTY<-factor(storm$DAMAGE_PROPERTY,levels = c("Low","Medium","High"),labels = c(1,2,3))
+storm$DAMAGE_CROPS<-factor(storm$DAMAGE_CROPS,levels = c("Low","Medium","High"),labels = c(1,2,3));
 ?kmeans
 #calculating Kmeans for Injurues
 kmeans_injuries<- kmeans(storm[,-c(8)],2,nstart = 10)
@@ -35,12 +35,12 @@ kmeans_death$cluster
 table(kmeans_death$cluster,storm[,8])
 
 #calculating Kmeans for Damage property
-kmeans_property<- kmeans(storm[,-c(10)],2,nstart = 10)
+kmeans_property<- kmeans(storm[,-c(10)],3,nstart = 10)
 kmeans_property$cluster
 table(kmeans_property$cluster,storm[,10])
 
 #calculating Kmeans for damage crops
-kmeans_crops<- kmeans(storm[,-c(11)],2,nstart = 10)
+kmeans_crops<- kmeans(storm[,-c(11)],3,nstart = 10)
 kmeans_crops$cluster
 table(kmeans_crops$cluster,storm[,11])
 ?kmeans
