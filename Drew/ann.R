@@ -655,7 +655,7 @@ ann.method1 <- function () {
   m1.mse
   
   plot(roc(m1.pred, m1.orig), main=paste("DAMAGE_CROPS ", ann.SAMPLE_SIZE))
-  # plot(m1.fit)
+  plot(m1.fit)
 }
 
 ## METHOD 2: Classification on INJURIES
@@ -673,7 +673,7 @@ ann.method2 <- function () {
   m2.mse
   
   plot(roc(ann.test$INJURIES, m2.pred), main=paste("INJURIES ROC ", ann.SAMPLE_SIZE))
-  # plot(m2.fit)
+  plot(m2.fit)
 }
 
 ## METHOD 3: Classification on DEATHS
@@ -691,10 +691,10 @@ ann.method3 <- function () {
   m3.mse
   
   plot(roc(ann.test$DEATHS, m3.pred), main=paste("DEATH ROC ", ann.SAMPLE_SIZE))
-  # plot(m3.fit)
+  plot(m3.fit)
 }
 
 ann.method0()
-# ann.method1()
+ann.method1()
 ann.method2()
 ann.method3()
