@@ -39,8 +39,8 @@ table(Injuries_cutree,storm[,8])
 
 #hclust for death
 Deaths_dist<-dist( storm[,-c(9)])
-Death_hclust<-hclust(Deaths_dist,method="complete")
-plot(Death_hclust, cex = 0.6, hang = -1)
+Death_hclust<-hclust(Deaths_dist,method="average")
+plot(Death_hclust, cex = 0.6, hang = -1) 
 Death_cutree<-cutree(Death_hclust,2) 
 table(Death_cutree,storm[,9])
 
@@ -57,4 +57,3 @@ Damage_crops_hclust<-hclust(Damage_crops_dist,method="complete")
 plot(Damage_crops_hclust, cex = 0.6, hang = -1)
 Damage_crops_cutree<-cutree(Damage_crops_hclust,2) 
 table(Damage_crops_cutree,storm[,11])
-

@@ -20,10 +20,10 @@ storm<-
 storm<-storm[,-c(1)]
 
 #To assign integer values to factors
-storm$INJURIES<-factor(storm$INJURIES,levels = c("No","Yes"),labels = c(0,1))
-storm$DEATHS<-factor(storm$DEATHS,levels = c("No","Yes"),labels = c(0,1))
-storm$DAMAGE_PROPERTY<-factor(storm$DAMAGE_PROPERTY,levels = c("Low","Medium","High"),labels = c(0,1,2))
-storm$DAMAGE_CROPS<-factor(storm$DAMAGE_CROPS,levels = c("Low","Medium","High"),labels = c(0,1,2))
+storm$INJURIES<-factor(storm$INJURIES,levels = c("Yes","No"),labels = c(1,2))
+storm$DEATHS<-factor(storm$DEATHS,levels = c("Yes","No"),labels = c(1,2))
+storm$DAMAGE_PROPERTY<-factor(storm$DAMAGE_PROPERTY,levels = c("Low","Medium","High"),labels = c(1,2,3))
+storm$DAMAGE_CROPS<-factor(storm$DAMAGE_CROPS,levels = c("Low","Medium","High"),labels = c(1,2,3))
 
 ##Define max-min normalization function
 mmnorm <-function(x,minx,maxx) {z<-((x-minx)/(maxx-minx))

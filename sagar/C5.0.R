@@ -13,7 +13,7 @@ rm(list = ls())
 #read data
 storm <- read.csv("/Users/sagarjain/Desktop/kddm/project/sagar/storm.csv")
 storm <- storm[,-c(1)]
-View(storm)
+#View(storm)
 
 #diving data into test and training data set
 index<-sort(sample(nrow(storm),round(.25*nrow(storm))))
@@ -27,7 +27,7 @@ library(rpart)
 library('rpart.plot')
 
 
-set.seed(123)
+#set.seed(123)
 
 #C5.0 methodology to develop a classification model for the INJURIES
 C50_INJURIES<-C5.0(INJURIES~.,data=training)
@@ -39,8 +39,8 @@ table(actual=test[,8],C50=C50_INJURIES_predict)
 wrong_INJURIES<- (test[,8]!=C50_INJURIES_predict)
 wrong_INJURIES
 c50_rate_INJURIES<-sum(wrong_INJURIES)/length(test[,8])
-
 c50_rate_INJURIES
+#C5imp(C50_INJURIES,metric='usage')
 
 #set.seed(123)
 #C5.0 methodology to develop a classification model for the DEATHS
@@ -54,6 +54,8 @@ wrong_DEATHS<- (test[,9]!=C50_DEATHS_predict)
 wrong_DEATHS
 c50_rate_DEATHS<-sum(wrong_DEATHS)/length(test[,9])
 c50_rate_DEATHS
+C5imp(C50_DEATHS,metric='usage')
+
 
 #C5.0 methodology to develop a classification model for the property damage
 C50_DAMAGES_p<-C5.0(DAMAGE_PROPERTY~.,data=training)
@@ -78,5 +80,4 @@ wrong_c_DAMAGES<- (test[,11]!=C50_DAMAGES_c_predict)
 wrong_c_DAMAGES
 c50_rate_DAMAGES_c<-sum(wrong_c_DAMAGES)/length(test[,11])
 c50_rate_DAMAGES_c
-
 
